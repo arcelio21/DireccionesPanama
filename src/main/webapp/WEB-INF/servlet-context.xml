@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/mvc
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd ">
+
+    <context:component-scan base-package="com.project" />
+
+    <mvc:annotation-driven />
+
+
+
+    <!--CONFIGURACION DEL BEAN PARA THYMELEAF, PARA INDICAR DONDE SE ENCUENTA LAS PLANTILLAS
+    <bean id="templateResolver" class="org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver">
+        <property name="prefix" value="/WEB-INF/templates/" />
+        <property name="suffix" value=".html" />
+        <property name="templateMode" value="HTML5" />
+        <property name="cacheable" value="true" />
+    </bean>-->
+
+    <!--BEAN QUE CONFIGURA QUE MOTOR DE PLANTILLAS SE UTILIZARA
+    <bean id="templateEngine" class="org.thymeleaf.spring5.SpringTemplateEngine">
+        <property name="templateResolver" ref="templateResolver" />
+        <property name="enableSpringELCompiler"  value="true" />
+    </bean>-->
+
+    <!--CONFIGURAR EL FACILITADOR DE VISTAS Y REDIRIGIRNOS A ELLA
+    <bean id="viewResolver" class="org.thymeleaf.spring5.view.ThymeleafViewResolver">
+        <property name="templateEngine" ref="templateEngine" />
+        <property name="order" value="1" />
+        <property name="viewNames" value="*.html" />
+    </bean>-->
+
+    <bean id="views" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/view/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+
+    <mvc:resources mapping="/resources/**" location="/resources/" />
+
+    <bean id="messageResource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basenames" value="Messages" />
+    </bean>
+
+    <!--ORIGIN BD AND POOL CONNECTION-->
+    <bean id="myDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+
+        <property name="driverClass" value="oracle.jdbc.OracleDriver" />
+        <property name="jdbcUrl" value="jdbc:oracle:thin:@localhost:1521:xe" />
+        <property name="user" value="Clinica" />
+        <property name="password" value="holaCOMO" />
+
+        <!--PROPERTIES POOL CONNECTION FOR C3P0-->
+        <property name="minPoolSize" value="3" />
+        <property name="maxPoolSize" value="50" />
+        <property name="maxIdleTime" value="30000" /> <!--TIME CONNECTION-->
+    </bean>
+
+    <!--CONFIGURATION SESSION FACTORY-->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+
+        <property name="dataSource" ref="myDataSource" />
+        <property name="packagesToScan" value="com.project.model" />
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.Oracle12cDialect</prop>
+                <prop key="hibernate.show_sql">true</prop>
+            </props>
+        </property>
+
+    </bean>
+
+    <!--CONFIGURE TRANSACTION MANAGER-->
+    <bean id="myTransactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+
+</beans>
